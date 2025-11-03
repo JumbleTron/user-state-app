@@ -9,10 +9,50 @@ A production-ready Android application demonstrating best practices for secure u
 - **Automatic Token Refresh**: Transparent token refresh with race condition prevention
 - **Offline Support**: Maintains authentication state when network is unavailable
 - **Session Events**: Observable events for refresh token missing and session expiration
+- **Navigation System**: Jetpack Compose Navigation with automatic auth-based routing
+- **Multiple Screens**: Login, Home, and Profile screens with proper back stack management
 - **Clean Architecture**: MVVM pattern with Hilt dependency injection
 - **Modern Android Stack**: Jetpack Compose, Kotlin Coroutines, and Flow
 
 ## Architecture
+
+### UI and Navigation
+
+The app features a complete navigation system built with Jetpack Compose Navigation:
+
+**Screens:**
+1. **LoginScreen** - Authentication screen with email/password form
+   - Input validation
+   - Loading states
+   - Demo credentials pre-filled
+
+2. **HomeScreen** - Main authenticated screen
+   - User information card (extracted from JWT)
+   - API request testing
+   - Navigation to Profile
+   - Debug buttons for token manipulation
+   - Logout functionality
+
+3. **ProfileScreen** - Secondary screen demonstrating navigation
+   - Detailed user information
+   - Token expiration display
+   - Back navigation
+   - Logout from profile
+
+**Navigation Flow:**
+```
+[Unauthenticated] → LoginScreen
+                     ↓ (login success)
+                  HomeScreen ←→ ProfileScreen
+                     ↓ (logout)
+                  LoginScreen (back stack cleared)
+```
+
+**Key Navigation Features:**
+- Automatic navigation based on authentication state
+- Back stack management (prevents returning to login after authentication)
+- System back button handling
+- Logout clears entire navigation history
 
 ### Security
 
@@ -48,6 +88,7 @@ A production-ready Android application demonstrating best practices for secure u
 
 - **Language**: Kotlin 2.2.21
 - **UI**: Jetpack Compose with Material3
+- **Navigation**: Jetpack Compose Navigation 2.9.0
 - **DI**: Dagger Hilt
 - **Networking**: Retrofit 3.0 + OkHttp 5.3
 - **Storage**: DataStore with custom encrypted serializer
@@ -98,6 +139,68 @@ val email = jwt.getClaim("email").asString() ?: ""
 ```
 
 ## Usage
+
+### Navigation Setup
+
+The app automatically handles navigation based on authentication state:
+
+```kotlin
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
+    @Inject lateinit var sessionManager: SessionManager
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sessionManager.loadInitialAuthStatus()
+
+        setContent {
+            val authStatus by sessionManager.authStatusFlow.collectAsStateWithLifecycle()
+            val navController = rememberNavController()
+
+            NavGraph(
+                navController = navController,
+                sessionManager = sessionManager,
+                startDestination = when(authStatus) {
+                    AuthStatus.AUTHENTICATED -> Screen.Home.route
+                    else -> Screen.Login.route
+                }
+            )
+        }
+    }
+}
+```
+
+### Creating Authenticated Screens
+
+```kotlin
+@Composable
+fun YourScreen(
+    onNavigate: () -> Unit,
+    onLogout: () -> Unit,
+    sessionManager: SessionManager
+) {
+    val userData by sessionManager.userData.collectAsState()
+
+    Scaffold(
+        topBar = { TopAppBar(title = { Text("Your Screen") }) }
+    ) { padding ->
+        Column(Modifier.padding(padding)) {
+            userData?.let { user ->
+                Text("Welcome, ${user.email}")
+                Text("User ID: ${user.userId}")
+            }
+
+            Button(onClick = onNavigate) {
+                Text("Navigate")
+            }
+
+            Button(onClick = onLogout) {
+                Text("Logout")
+            }
+        }
+    }
+}
+```
 
 ### Basic Authentication
 
@@ -238,6 +341,9 @@ app/src/main/java/com/kielniakodu/userstateapp/
 │   ├── AuthInterceptor.kt      # Token injection
 │   ├── NetworkStatusInterceptor.kt # Offline detection
 │   └── TokenAuthenticator.kt   # Automatic token refresh
+├── navigation/                  # Navigation components
+│   ├── Screen.kt               # Screen route definitions
+│   └── NavGraph.kt             # Navigation graph setup
 ├── service/                     # Services and managers
 │   ├── ApiService.kt           # Retrofit API interface
 │   ├── AuthTokenSerializer.kt  # Encrypted token serialization
@@ -245,8 +351,12 @@ app/src/main/java/com/kielniakodu/userstateapp/
 │   ├── JwtManager.kt           # JWT parsing utilities
 │   └── SessionManager.kt       # Session state management
 ├── ui/                         # UI components
+│   ├── screens/                # Composable screens
+│   │   ├── LoginScreen.kt     # Login screen
+│   │   ├── HomeScreen.kt      # Home screen
+│   │   └── ProfileScreen.kt   # Profile screen
 │   └── theme/                  # Compose theme
-├── MainActivity.kt             # Main activity
+├── MainActivity.kt             # Main activity with navigation
 └── MainViewModel.kt            # Main view model
 ```
 
@@ -263,6 +373,26 @@ Run instrumented tests:
 ```bash
 ./gradlew connectedAndroidTest
 ```
+
+## Screenshots
+
+### Login Screen
+- Email and password input fields
+- Demo credentials pre-filled
+- Loading indicator during authentication
+
+### Home Screen
+- User information card with JWT data
+- API request testing button
+- Navigation to Profile
+- Debug buttons for testing token scenarios
+- Logout button
+
+### Profile Screen
+- Detailed user information
+- Token expiration timestamp
+- Back navigation
+- Alternative logout option
 
 ## Common Issues
 
@@ -282,6 +412,13 @@ Ensure your JWT tokens use standard claim names or update `JwtManager.kt` to mat
 ### Network Errors
 
 Check that `API_BASE_URL` in `build.gradle.kts` is correctly configured and accessible from your device/emulator.
+
+### Navigation Issues
+
+If navigation doesn't work as expected:
+- Ensure `sessionManager.loadInitialAuthStatus()` is called before setting content
+- Check that NavGraph observes `authStatusFlow` correctly
+- Verify back stack is cleared on logout
 
 ## Contributing
 

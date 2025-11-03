@@ -128,6 +128,22 @@ All DI modules use Hilt's `@InstallIn(SingletonComponent::class)`:
 - Unnamed `ApiService` - Authenticated service for protected endpoints
 - All API calls wrapped in viewModelScope coroutines
 
+### Navigation Architecture
+
+The app uses Jetpack Compose Navigation with three main screens:
+
+**Screen Routes** (`navigation/Screen.kt`):
+- `Login` - Authentication screen
+- `Home` - Main authenticated screen with user data and actions
+- `Profile` - Secondary screen demonstrating navigation and back button handling
+
+**Navigation Flow:**
+- NavGraph observes `authStatusFlow` and automatically navigates based on authentication state
+- After login: Login → Home (clears back stack)
+- After logout: Current Screen → Login (clears entire back stack)
+- BackHandler prevents navigating back to login after authentication
+- Profile screen demonstrates proper navigation with TopAppBar back button
+
 ## User Data Access
 
 The app provides easy access to user data extracted from JWT tokens:
