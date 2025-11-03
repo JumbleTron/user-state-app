@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,6 +8,17 @@ plugins {
     alias(libs.plugins.hilt)
     kotlin("kapt")
 }
+
+// Load local.properties
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+
+// Get API_BASE_URL from local.properties or use default
+val apiBaseUrl: String = localProperties.getProperty("API_BASE_URL")
+    ?: "https://demo-api.com/"
 
 android {
     namespace = "com.kielniakodu.userstateapp"
@@ -22,8 +36,9 @@ android {
             useSupportLibrary = true
         }
 
-        // Configure API URL - change this to your backend URL
-        buildConfigField("String", "API_BASE_URL", "\"https://your-api-url.example.com\"")
+        // Configure API URL from local.properties
+        // Copy local.properties.example to local.properties and configure your API URL
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
 
     buildTypes {

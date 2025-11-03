@@ -115,11 +115,20 @@ cd UserStateApp
 
 2. **Configure API Base URL**
 
-Edit `app/build.gradle.kts` and update the API_BASE_URL:
+Create a `local.properties` file in the project root (if it doesn't exist) and add your API base URL:
 
-```kotlin
-buildConfigField("String", "API_BASE_URL", "\"https://your-api-url.example.com\"")
+```properties
+# local.properties
+API_BASE_URL=https://your-api-url.example.com/
 ```
+
+You can copy from the example file:
+```bash
+cp local.properties.example local.properties
+# Then edit local.properties with your API URL
+```
+
+**Note:** The `local.properties` file is already in `.gitignore` and will not be committed to version control. This keeps your API configuration private and allows different developers to use different API endpoints.
 
 3. **Configure JWT Claims (Optional)**
 
@@ -411,7 +420,7 @@ Ensure your JWT tokens use standard claim names or update `JwtManager.kt` to mat
 
 ### Network Errors
 
-Check that `API_BASE_URL` in `build.gradle.kts` is correctly configured and accessible from your device/emulator.
+Check that `API_BASE_URL` in `local.properties` is correctly configured and accessible from your device/emulator. Make sure the URL ends with a trailing slash (e.g., `https://api.example.com/`).
 
 ### Navigation Issues
 

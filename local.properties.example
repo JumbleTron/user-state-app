@@ -1,0 +1,17 @@
+# Local Properties Configuration
+# Copy this file to 'local.properties' and update with your values
+# IMPORTANT: Never commit the actual 'local.properties' file to version control
+
+## SDK Location (required by Android SDK)
+# Uncomment and set the path to your Android SDK
+# sdk.dir=/Users/username/Library/Android/sdk
+
+## API Configuration
+# Set your backend API base URL
+# This URL will be used for all API calls in the application
+API_BASE_URL=https://api.example.com/
+
+# Examples for different environments:
+# Development: API_BASE_URL=http://localhost:8080/
+# Staging:     API_BASE_URL=https://staging-api.example.com/
+# Production:  API_BASE_URL=https://api.example.com/

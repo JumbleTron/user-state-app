@@ -137,9 +137,7 @@ class SessionManager @Inject constructor(
     fun loadInitialAuthStatus() {
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             val tokens = secureTokenDataStore.data.first()
-            val hasToken = tokens.authToken.isNotBlank()
-            if (hasToken) {
-                // Parse user data from token
+            if (tokens.authToken.isNotBlank()) {
                 _userData.value = jwtManager.parseToken(tokens.authToken)
                 _authStatus.emit(AuthStatus.AUTHENTICATED)
             } else {

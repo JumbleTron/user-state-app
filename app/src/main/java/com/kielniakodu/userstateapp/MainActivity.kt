@@ -6,15 +6,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -47,7 +46,6 @@ class MainActivity : ComponentActivity() {
                 val authStatus by sessionManager.authStatusFlow.collectAsStateWithLifecycle()
                 val navController = rememberNavController()
                 val snackbarHostState = remember { SnackbarHostState() }
-                val scope = rememberCoroutineScope()
 
                 // Determine start destination based on auth status
                 val startDestination = when (authStatus) {
@@ -59,7 +57,7 @@ class MainActivity : ComponentActivity() {
                     snackbarHost = { SnackbarHost(snackbarHostState) }
                 ) { paddingValues ->
                     Surface(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().padding(paddingValues),
                         color = MaterialTheme.colorScheme.background
                     ) {
                         NavGraph(

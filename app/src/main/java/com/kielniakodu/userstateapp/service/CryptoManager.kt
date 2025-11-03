@@ -1,9 +1,7 @@
 package com.kielniakodu.userstateapp.service
 
-import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.InputStream
 import java.io.OutputStream
 import java.security.KeyStore
@@ -14,7 +12,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CryptoManager @Inject constructor(@param:ApplicationContext private val context: Context) {
+class CryptoManager @Inject constructor() {
 
     private val KEY_ALIAS = "secure_token_key_alias"
     private val TRANSFORMATION = "AES/GCM/NoPadding"
